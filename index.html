@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат внизу прямоугольника</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-image: url('file:///C:/Users/%D0%95%D0%B3%D0%BE%D1%80/Desktop/%D0%B0%D0%BD%D0%B8%D0%BC%D0%B3%D0%B8%D1%84/3c6618e123254323896afb2d66561dbc.gif');
+            background-size: cover;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+        }
+        .overlay {
+            width: 400px; 
+            height: 900px; 
+            background-image: url('file:///C:/Users/%D0%95%D0%B3%D0%BE%D1%80/Desktop/%D0%B0%D0%BD%D0%B8%D0%BC%D0%B3%D0%B8%D1%84/9c14863b9e64ffc65cdfda4cdc9a0b99.gif');
+            background-size: cover; 
+            border-radius: 10px; 
+            transition: width 0.3s, height 0.3s; /* Плавный переход для изменения размера */
+            margin: 0 10px; /* Отступы между прямоугольниками */
+            display: flex;
+            flex-direction: column; /* Упорядочиваем элементы вертикально */
+        }
+        #messageContainer {
+            flex: 1; /* Занимает оставшееся пространство */
+            max-height: 700px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .message {
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            background-color: #e0f7fa; /* Цвет фона для сообщений */
+        }
+        #inputContainer {
+            display: flex; /* Упорядочиваем ввод и кнопку в строку */
+            padding: 10px;
+        }
+        #messageInput {
+            flex: 1; /* Занимает оставшееся пространство в строке */
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #sendButton {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px; /* Отступ между полем ввода и кнопкой */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="overlay" id="overlay1"></div>
+        <div class="overlay" id="overlay2" style="display: none;">
+            <div id="messageContainer"></div>
+            <div id="inputContainer"> <!-- Обёртка для ввода и кнопки -->
+                <input type="text" id="messageInput" placeholder="Введите сообщение" />
+                <button id="sendButton">Отправить</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const overlay1 = document.getElementById('overlay1');
+        const overlay2 = document.getElementById('overlay2');
+        const messageContainer = document.getElementById('messageContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        let longPressTimer;
+        // Загрузка сообщений из Local Storage
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('messages')) || [];
+            messageContainer.innerHTML = messages.map(msg => `<div class="message">${msg}</div>`).join('');
+            messageContainer.scrollTop = messageContainer.scrollHeight; // Прокручиваем вниз
+        }
+        // Отправка сообщения
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                const messages = JSON.parse(localStorage.getItem('messages')) || [];
+                messages.push(message);
+                localStorage.setItem('messages', JSON.stringify(messages));
+                messageInput.value = '';
+                loadMessages(); // Обновляем отображение сообщений
+            }
+        }
+        // Обработчик события для кнопки "Отправить"
+        sendButton.addEventListener('click', sendMessage);
+        // Обработчик события для нажатия клавиши Enter
+        messageInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage(); // Отправляем сообщение при нажатии Enter
+            }
+        });
+        // Обработчик долгого нажатия на overlay1
+        overlay1.addEventListener('mousedown', function() {
+            longPressTimer = setTimeout(function() {
+                if (overlay2.style.display === 'none') {
+                    overlay2.style.display = 'flex'; // Показываем второй прямоугольник
+                    loadMessages(); // Загружаем сообщения при открытии второго прямоугольника
+                } else {
+                    overlay2.style.display = 'none'; // Скрываем второй прямоугольник
+                }
+            }, 1000); // 1 секунда
+        });
+        // Обработчик долгого нажатия на overlay2
+        overlay2.addEventListener('mousedown', function() {
+            longPressTimer = setTimeout(function() {
+                if (overlay1.style.display === 'none') {
+                    overlay1.style.display = 'flex'; // Показываем первый прямоугольник
+                } else {
+                    overlay1.style.display = 'none'; // Скрываем первый прямоугольник
+                }
+            }, 1000); // 1 секунда
+        });
+        // Очищаем таймер при отпускании кнопки
+        document.addEventListener('mouseup', function() {
+            clearTimeout(longPressTimer); // Очищаем таймер, если кнопка отпущена
+        });
+        // Очищаем таймер, если мышь покинула область
+        document.addEventListener('mouseleave', function() {
+            clearTimeout(longPressTimer); // Очищаем таймер, если мышь покинула область
+        });
+        loadMessages(); // Загружаем сообщения при загрузке страницы
+    </script>
+</body>
+</html>
+
+Найти еще
